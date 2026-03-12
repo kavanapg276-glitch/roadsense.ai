@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 from services.aws_service import upload_file
 
+app = 
 router = APIRouter()
 
 @router.post("/upload")
