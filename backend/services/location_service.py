@@ -1,20 +1,28 @@
 import math
 
+# -------------------------------
+# Distance Calculation
+# -------------------------------
 
 def calculate_distance(lat1, lon1, lat2, lon2):
-    """
-    Calculate distance between two GPS coordinates in meters.
-    """
 
-    R = 6371000  # Earth's radius in meters
+    R = 6371  # Earth radius in km
 
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
 
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
 
-    a = math.sin(dphi/2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda/2)**2
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = (
+        math.sin(dlat / 2) ** 2 +
+        math.cos(lat1) * math.cos(lat2) *
+        math.sin(dlon / 2) ** 2
+    )
+
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     distance = R * c
@@ -22,21 +30,21 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return distance
 
 
-def is_duplicate(new_lat, new_lon, existing_reports):
+# -------------------------------
+# Duplicate Detection
+# -------------------------------
+
+def is_duplicate(new_lat, new_lon, existing_locations, threshold_km=0.05):
     """
-    Check if a pothole already exists within 50 meters.
+    Checks if a pothole report is near an existing one.
+    Default threshold = 50 meters
     """
 
-    for report in existing_reports:
+    for lat, lon in existing_locations:
 
-        distance = calculate_distance(
-            new_lat,
-            new_lon,
-            report["latitude"],
-            report["longitude"]
-        )
+        distance = calculate_distance(new_lat, new_lon, lat, lon)
 
-        if distance < 50:
+        if distance < threshold_km:
             return True
 
     return False
